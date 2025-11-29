@@ -9,7 +9,7 @@ This project have the proposal to simulate a read replica infrastucture in postg
 
 ```shell
 # Creating postgres instancies
-make docker-up #or docker-compose up -d
+docker-compose up
 
 # Acessing prostgres shell for primary database (read and write operations)
 make primary-db-shell
@@ -24,12 +24,12 @@ make replica-db-shell
 # writing operation
 make primary-db-shell
 
-insert into products (sku, name, price_cents) values ('SKU-4', 'Coke 200ML', 150);
+insert into products (sku, name, price_cents) values ('SKU-4', 'Coke 200ML', 150), ('SKU-5', 'Coke 350ML', 210);
 
-select * from products where sku='SKU-4';
+select * from products where sku in('SKU-4', 'SKU-5');
 
 # Acessing replica database (readonly) and executing read operation
 make replica-db-shell
 
-select * from products where sku='SKU-4';
+select * from products where sku in('SKU-4', 'SKU-5');
 ```
