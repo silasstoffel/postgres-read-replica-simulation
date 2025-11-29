@@ -31,9 +31,6 @@ services:
     image: postgres:15-alpine
     container_name: 'replica1-db'
     environment:
-      POSTGRES_USER: 'replica1' 
-      POSTGRES_PASSWORD: 'replica1'
-      POSTGRES_DB: 'replica1-db'
       PGPASSWORD: 'replicator_pass'
     ports:
       - '5434:5432'
