@@ -3,7 +3,7 @@
 ## About
 This project have the proposal to simulate a read replica infrastucture in postgres (physical replication).
 
-![Diagram](doc/draw.png)
+![Diagram](/doc/draw.png)
 
 ## Commands
 
