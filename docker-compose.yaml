@@ -1,0 +1,67 @@
+services:
+  primary-db:
+    image: postgres:15-alpine
+    container_name: 'primary-db'
+    environment:
+      POSTGRES_USER: 'primary' 
+      POSTGRES_PASSWORD: 'primary'
+      POSTGRES_DB: 'primary-db'
+    ports:
+      - '5433:5432'
+    volumes:
+        - ./scripts/001-init-primary.sh:/docker-entrypoint-initdb.d/001-init-primary.sh
+        - ./data/010-init-db.sql:/docker-entrypoint-initdb.d/010-init-db.sql
+        - ./volumes/primary-db:/var/lib/postgresql/data
+    command: [
+      "postgres",
+      "-c", "wal_level=replica",
+      "-c", "hot_standby=on",
+      "-c", "max_wal_senders=10",
+      "-c", "max_replication_slots=10",
+      "-c", "hot_standby_feedback=on"
+    ]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U primary -d primary-db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  replica1-db:
+    image: postgres:15-alpine
+    container_name: 'replica1-db'
+    environment:
+      POSTGRES_USER: 'replica1' 
+      POSTGRES_PASSWORD: 'replica1'
+      POSTGRES_DB: 'replica1-db'
+      PGPASSWORD: 'replicator_pass'
+    ports:
+      - '5434:5432'
+    volumes:
+        - './volumes/replica1-db:/var/lib/postgresql/data'
+    depends_on:
+      primary-db:
+        condition: service_healthy     
+    command: |
+      bash -c "
+      
+      echo 'Creating credentials file'
+      echo 'primary-db:*:*:replicator:${PGPASSWORD}' > ~/.pgpass
+      chmod 0600 ~/.pgpass
+
+      until pg_isready -h primary-db -U replicator; do
+        echo 'Checking primary db is up'
+        sleep 2
+      done
+
+      # copy data from primary db if the data directoy is empty
+      if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
+        echo 'waiting 2 seconds'
+        sleep 2
+        echo 'Copy primary database ...'
+        pg_basebackup -h primary-db -D /var/lib/postgresql/data -U replicator -Fp -Xs -P -R
+      fi
+
+      echo 'starting postgres instance'
+      docker-entrypoint.sh postgres
+      "
