@@ -24,9 +24,10 @@ make replica-db-shell
 # writing operation
 make primary-db-shell
 
-insert into products (sku, name, price_cents) values ('SKU-4', 'Coke 200ML', 150), ('SKU-5', 'Coke 350ML', 210);
+insert into categories(name) values ('electronics');
+insert into categories(name) values ('fitness');
 
-select * from products where sku in('SKU-4', 'SKU-5');
+select * from categories order by 1 desc limit 2;
 
 # Acessing replica database (readonly) and executing read operation
 make replica-db-shell
