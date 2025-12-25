@@ -5,6 +5,12 @@ This project have the proposal to simulate a read replica infrastucture in postg
 
 ![Diagram](/doc/diagram.svg)
 
+## Setup
+
+```shell
+docker-compose up
+```
+
 ## Commands
 
 ```shell
