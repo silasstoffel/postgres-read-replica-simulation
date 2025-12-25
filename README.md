@@ -14,9 +14,6 @@ docker-compose up
 ## Commands
 
 ```shell
-# Creating postgres instancies
-docker-compose up
-
 # Acessing prostgres shell for primary database (read and write operations)
 make primary-db-shell
 
